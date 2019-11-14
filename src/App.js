@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import Input from "./Components/Input";
+import List from "./Components/List";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: "",
+      list: []
+    };
+  }
+  handleAddTodo = () => {
+    const { input, list } = this.state;
+    list.push(input);
+    this.setState({
+      list
+    });
+  };
+  handleChange = e => {
+    this.setState({
+      input: e.target.value
+    });
+  };
+  render() {
+    const { list, input } = this.state;
+    return (
+      <div className="App">
+        <Input
+          handleChange={this.handleChange}
+          input={input}
+          handleAddTodo={this.handleAddTodo}
+        />
+        <List list={list} />
+      </div>
+    );
+  }
 }
 
 export default App;
