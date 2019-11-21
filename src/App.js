@@ -1,38 +1,84 @@
 import React from "react";
 import "./App.css";
-import Input from "./Components/Input";
-import List from "./Components/List";
+import Header from "./Components/Header";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from "react-router-dom";
+import Signin from "./Components/Signin";
+import Home from "./Components/Home";
+import Wishlist from "./Components/Wishlist";
+
+function ProtectedRoute({ Component, isLoggedIn, ...rest }) {
+  return (
+    <Route
+      {...rest}
+      render={props => {
+        return isLoggedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/signin",
+              state: { from: props.location.pathname }
+            }}
+          />
+        );
+      }}
+    />
+  );
+}
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      input: "",
-      list: []
+      isLoggedIn: false
     };
   }
-  handleAddTodo = () => {
-    const { input, list } = this.state;
-    list.push(input);
-    this.setState({
-      list
-    });
+
+  handleLogin = (username, password) => {
+    if (username === "demo" && password === "demo") {
+      this.setState({
+        isLoggedIn: true
+      });
+    } else {
+      this.setState({
+        isLoggedIn: false
+      });
+    }
   };
-  handleChange = e => {
-    this.setState({
-      input: e.target.value
-    });
-  };
+
   render() {
-    const { list, input } = this.state;
+    const { isLoggedIn } = this.state;
     return (
       <div className="App">
-        <Input
-          handleChange={this.handleChange}
-          input={input}
-          handleAddTodo={this.handleAddTodo}
-        />
-        <List list={list} />
+        <Router>
+          <Header isLoggedIn={isLoggedIn} />
+          <Switch>
+            <ProtectedRoute path="/home" component={Home} />
+            <Route
+              path="/signin"
+              render={props => {
+                return (
+                  <Signin
+                    {...props}
+                    handleLogin={this.handleLogin}
+                    isLoggedIn={isLoggedIn}
+                  />
+                );
+              }}
+            />
+            <ProtectedRoute
+              path="/wishlist"
+              Component={Wishlist}
+              isLoggedIn={isLoggedIn}
+            />
+            <Redirect to="/home" />
+          </Switch>
+        </Router>
       </div>
     );
   }
